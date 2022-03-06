@@ -6,7 +6,7 @@ from scipy.io.wavfile import write
 DEFAULT_INPUT_DEVICE = 'Stereo Mix (Realtek(R) Audio), MME'
 DEFAULT_MFCC_IMAGE_NAME = 'mfcc-{}'
 SAMPLE_RATE = 48000
-RECORDING_WINDOW_INTERVAL = 5
+RECORDING_WINDOW_INTERVAL = 1
 
 
 # print(sd.query_devices())
@@ -40,6 +40,7 @@ def start_listening_and_creating_mfcc():
 
 
 def main():
+    print('##### Starting recording system audio #####')
     setup_sound_device()
     start_listening_and_creating_mfcc()
 
