@@ -2,31 +2,26 @@ import matplotlib.pyplot as plt
 from python_speech_features import mfcc
 import sounddevice as sd
 import scipy.io.wavfile as wav
+from scipy.signal.windows import hann
 import librosa
-import torchaudio.transforms
-import torch
 import numpy as np
 
 DEFAULT_INPUT_DEVICE = 'Stereo Mix (Realtek(R) Audio), MME'
 DEFAULT_MFCC_IMAGE_NAME = 'mfcc-{}'
 SAMPLE_RATE = 48000
 RECORDING_WINDOW_INTERVAL = 1
-
-
+SAMPLE_FILE_NAME= "dog-bark.wav"
 n_mfcc = 13
-n_mels = 20
+n_mels = 40
 n_fft = 512
 hop_length = 160
 fmin = 0
 fmax = None
 
-melkwargs={"n_fft" : n_fft, "n_mels" : n_mels, "hop_length":hop_length, "f_min" : fmin, "f_max" : fmax}
-
-
 # print(sd.query_devices())
 
 def load_sample_audio():
-    (sample_rate, sig) = wav.read("dog-bark.wav")
+    (sample_rate, sig) = wav.read(SAMPLE_FILE_NAME)
     return sample_rate, sig
 
 
@@ -44,34 +39,18 @@ def record_window():
     return recorded_window
 
 
-def create_torch_mfcc(record, sample_rate):
-    return torchaudio.transforms.MFCC(sample_rate=sample_rate,
-                                      n_mfcc=n_mfcc,
-                                      dct_type=2,
-                                      norm='ortho',
-                                      log_mels=False,
-                                      melkwargs=melkwargs).cuda()(torch.from_numpy(record))
-
-
 def create_librosa_mfcc(record, sample_rate):
-    (y, sr) = librosa.load("dog-bark.wav")
-    S = librosa.feature.melspectrogram(y=y, sr=sr).T
-    return librosa.feature.mfcc(y,sr, n_mfcc=40,n_fft=1024, S=S.T,
-                                             win_length=int(0.025*sr),
-                                             hop_length=int(0.01*sr),htk=False)
-    # return librosa.feature.mfcc(y, sr, n_mfcc=96,
-    #                                          n_fft=1024,
-    #                                          win_length=int(0.025*sr),
-    #                                          hop_length=int(0.01*sr))
+    features = librosa.feature.mfcc(record, sample_rate,  n_fft=n_fft,
+                                    n_mfcc=n_mfcc, n_mels=n_mels,
+                                    hop_length=hop_length,
+                                    fmin=fmin, fmax=fmax, htk=False)
+    return features
 
 
 def create_mfcc(record, sample_rate):
-    mfcc_feat = mfcc(record, sample_rate, appendEnergy=True,
-                     winlen=0.025,
-                     winstep=0.01,
-                     numcep=40,
-                     nfilt=80,
-                     nfft=1024)
+    mfcc_feat = mfcc(record, sample_rate,winlen=n_fft / sample_rate, winstep=hop_length / sample_rate,
+                                          numcep=n_mfcc, nfilt=n_mels, nfft=n_fft, lowfreq=fmin, highfreq=fmax,
+                                          preemph=0.0, ceplifter=0, appendEnergy=False, winfunc=hann)
     return mfcc_feat.T
 
 
@@ -100,16 +79,13 @@ def main():
     # setup_sound_device()
     # start_listening_and_creating_mfcc()
     (sample_rate, sig) = load_sample_audio()
-    (sig_librosa, sample_rate_librosa) = librosa.load('StarWars3.wav')
+    (sig_librosa, sample_rate_librosa) = librosa.load(SAMPLE_FILE_NAME)
     # python speech features
     python_speech_mfcc = create_mfcc(sig, sample_rate)
-    plot_and_save_mfcc(python_speech_mfcc, 'mfcc-speech-dog')
+    plot_and_save_mfcc(python_speech_mfcc, 'mfcc-speech')
     #librosa
     librosa_features = create_librosa_mfcc(sig_librosa, sample_rate_librosa)
-    plot_and_save_mfcc(librosa_features, 'mfcc-librosa-dog')
-    # torch audio
-    # torch_mfcc = create_torch_mfcc(sig, sample_rate)
-    # plot_and_save_mfcc(torch_mfcc, 'mfcc-torch')
+    plot_and_save_mfcc(librosa_features, 'mfcc-librosa')
 
 
 if __name__ == "__main__":
