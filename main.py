@@ -64,6 +64,7 @@ def plot_and_save_mfcc(mfcc_data, file_name):
     plt.imshow(mfcc_data, aspect='auto', origin='lower')
     # plt.show()
     plt.savefig(file_name)
+    plt.cla()
 
 
 def start_listening_and_creating_mfcc():
