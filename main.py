@@ -4,6 +4,7 @@ import sounddevice as sd
 import scipy.io.wavfile as wav
 from scipy.signal.windows import hann
 import librosa
+import librosa.display as librosa_display
 import numpy as np
 
 DEFAULT_INPUT_DEVICE = 'Stereo Mix (Realtek(R) Audio), MME'
@@ -11,7 +12,8 @@ DEFAULT_MFCC_IMAGE_NAME = 'mfcc-{}'
 SAMPLE_RATE = 48000
 RECORDING_WINDOW_INTERVAL = 1
 SAMPLE_FILE_NAME= "dog-bark.wav"
-n_mfcc = 13
+
+n_mfcc = 40
 n_mels = 40
 n_fft = 512
 hop_length = 160
@@ -85,8 +87,9 @@ def main():
     plot_and_save_mfcc(python_speech_mfcc, 'mfcc-speech')
     #librosa
     librosa_features = create_librosa_mfcc(sig_librosa, sample_rate_librosa)
-    plot_and_save_mfcc(librosa_features, 'mfcc-librosa')
-
+    # plot_and_save_mfcc(librosa_features, 'mfcc-librosa')
+    librosa_display.specshow(librosa_features, sr=sample_rate_librosa, x_axis='time')
+    plt.savefig('MFCCs.png')
 
 if __name__ == "__main__":
     main()
