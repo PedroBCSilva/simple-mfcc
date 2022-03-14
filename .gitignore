@@ -113,5 +113,5 @@ fabric.properties
 .idea
 
 # Recording for test purpose
-mfcc-*.png
 mfcc-*.wav
+*.png
