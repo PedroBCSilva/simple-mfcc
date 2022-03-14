@@ -5,13 +5,13 @@ import scipy.io.wavfile as wav
 from scipy.signal.windows import hann
 import librosa
 import librosa.display as librosa_display
-import numpy as np
 
+# TODO: extract to a different config file since these are function
 DEFAULT_INPUT_DEVICE = 'Stereo Mix (Realtek(R) Audio), MME'
 DEFAULT_MFCC_IMAGE_NAME = 'mfcc-{}'
 SAMPLE_RATE = 48000
 RECORDING_WINDOW_INTERVAL = 1
-SAMPLE_FILE_NAME= "dog-bark.wav"
+SAMPLE_FILE_NAME = "dog-bark.wav"
 
 n_mfcc = 40
 n_mels = 40
@@ -19,6 +19,7 @@ n_fft = 512
 hop_length = 160
 fmin = 0
 fmax = None
+
 
 # print(sd.query_devices())
 
@@ -29,10 +30,6 @@ def load_sample_audio():
 
 def setup_sound_device():
     sd.default.device = DEFAULT_INPUT_DEVICE
-    # plt.figure(figsize=(25, 8))
-    # plt.title('Current audio MFCC', fontsize=18)
-    # plt.xlabel('Time [s]', fontsize=18)
-    # plt.ylabel('MFCC', fontsize=18)
 
 
 def record_window():
@@ -42,7 +39,7 @@ def record_window():
 
 
 def create_librosa_mfcc(record, sample_rate):
-    features = librosa.feature.mfcc(record, sample_rate,  n_fft=n_fft,
+    features = librosa.feature.mfcc(record, sample_rate, n_fft=n_fft,
                                     n_mfcc=n_mfcc, n_mels=n_mels,
                                     hop_length=hop_length,
                                     fmin=fmin, fmax=fmax, htk=False)
@@ -50,9 +47,9 @@ def create_librosa_mfcc(record, sample_rate):
 
 
 def create_mfcc(record, sample_rate):
-    mfcc_feat = mfcc(record, sample_rate,winlen=n_fft / sample_rate, winstep=hop_length / sample_rate,
-                                          numcep=n_mfcc, nfilt=n_mels, nfft=n_fft, lowfreq=fmin, highfreq=fmax,
-                                          preemph=0.0, ceplifter=0, appendEnergy=False, winfunc=hann)
+    mfcc_feat = mfcc(record, sample_rate, winlen=n_fft / sample_rate, winstep=hop_length / sample_rate,
+                     numcep=n_mfcc, nfilt=n_mels, nfft=n_fft, lowfreq=fmin, highfreq=fmax,
+                     preemph=0.0, ceplifter=0, appendEnergy=False, winfunc=hann)
     return mfcc_feat.T
 
 
@@ -86,11 +83,12 @@ def main():
     # python speech features
     python_speech_mfcc = create_mfcc(sig, sample_rate)
     plot_and_save_mfcc(python_speech_mfcc, 'mfcc-speech')
-    #librosa
+    # librosa
     librosa_features = create_librosa_mfcc(sig_librosa, sample_rate_librosa)
     # plot_and_save_mfcc(librosa_features, 'mfcc-librosa')
     librosa_display.specshow(librosa_features, sr=sample_rate_librosa, x_axis='time')
     plt.savefig('MFCCs.png')
+
 
 if __name__ == "__main__":
     main()
