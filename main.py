@@ -45,7 +45,7 @@ def start_listening_and_creating_mfcc():
     while True:
         my_recording = record_window()
         mfcc_data = create_mfcc(my_recording, conf.SAMPLE_RATE)
-        plot_and_save_mfcc(mfcc_data, conf.DEFAULT_MFCC_IMAGE_NAME.format(image_count))
+        plot_and_save_mfcc(mfcc_data, conf.DEFAULT_MFCC_IMAGE_NAME.format(image_count), conf.SAMPLE_RATE)
         wav.write(conf.DEFAULT_MFCC_IMAGE_NAME.format(image_count) + '.wav', conf.SAMPLE_RATE, my_recording)
         image_count += 1
 
@@ -59,9 +59,9 @@ def create_mfcc_from_file(file_path):
 
 def main():
     print('##### Starting recording system audio #####')
-    # setup_sound_device()
-    # start_listening_and_creating_mfcc()
-    create_mfcc_from_file(conf.SAMPLE_FILE_NAME)
+    setup_sound_device()
+    start_listening_and_creating_mfcc()
+    # create_mfcc_from_file(conf.SAMPLE_FILE_NAME)
 
 
 if __name__ == "__main__":
