@@ -42,7 +42,7 @@ def plot_and_save_mfcc(mfcc_data, file_name, sample_rate):
 
 def start_listening_and_creating_mfcc():
     image_count = 0
-    while image_count<2:
+    while True:
         my_recording = record_window()
         mfcc_data = create_mfcc(my_recording, conf.SAMPLE_RATE)
         plot_and_save_mfcc(mfcc_data, conf.DEFAULT_MFCC_IMAGE_NAME.format(image_count), conf.SAMPLE_RATE)
