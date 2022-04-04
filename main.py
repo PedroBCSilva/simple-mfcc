@@ -1,9 +1,12 @@
+import threading
+
 import matplotlib.pyplot as plt
 import sounddevice as sd
 import scipy.io.wavfile as wav
 import librosa
 import librosa.display as librosa_display
 import configurations as conf
+from threading import Thread
 
 # print(sd.query_devices())
 
@@ -33,20 +36,37 @@ def create_mfcc(record, sample_rate):
 
 def plot_and_save_mfcc(mfcc_data, file_name, sample_rate):
     plt.figure(figsize=(10, 8))
-    plt.title('Current audio MFCC', fontsize=18)
-    plt.xlabel('Time [s]', fontsize=18)
     librosa_display.specshow(mfcc_data, sr=sample_rate, x_axis='time', cmap='coolwarm')
     plt.savefig(file_name)
     plt.cla()
 
 
+def save_record(file_name, recording, sample_rate):
+    wav.write(file_name + '.wav', sample_rate, recording)
+
+
+def debug_save_mfcc(mfcc_data, record, sample_rate, file_name):
+    print('start save for ', file_name)
+    plot_and_save_mfcc(mfcc_data, file_name, sample_rate)
+    save_record(file_name, record, sample_rate)
+    print('finish save for ', file_name)
+    return 0
+
 def start_listening_and_creating_mfcc():
     image_count = 0
-    while image_count<2:
-        my_recording = record_window()
-        mfcc_data = create_mfcc(my_recording, conf.SAMPLE_RATE)
-        plot_and_save_mfcc(mfcc_data, conf.DEFAULT_MFCC_IMAGE_NAME.format(image_count), conf.SAMPLE_RATE)
-        wav.write(conf.DEFAULT_MFCC_IMAGE_NAME.format(image_count) + '.wav', conf.SAMPLE_RATE, my_recording)
+    while True:
+        current_window = record_window()
+        mfcc_data = create_mfcc(current_window, conf.SAMPLE_RATE)
+        save_thread = Thread(target=debug_save_mfcc,
+                             args=(mfcc_data,
+                                   current_window,
+                                   conf.SAMPLE_RATE,
+                                   conf.DEFAULT_MFCC_IMAGE_NAME.format(image_count)
+                                   ),
+                             daemon=True
+                             )
+        save_thread.start()
+        print(f"THREADS: {len(threading.enumerate())}")
         image_count += 1
 
 
