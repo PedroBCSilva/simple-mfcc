@@ -18,9 +18,9 @@ def setup_sound_device():
 
 
 def record_window():
-    recorded_window = sd.rec(int(conf.RECORDING_WINDOW_INTERVAL * conf.SAMPLE_RATE), samplerate=conf.SAMPLE_RATE, channels=2)
+    recorded_window = sd.rec(int(conf.RECORDING_WINDOW_INTERVAL * conf.SAMPLE_RATE), samplerate=conf.SAMPLE_RATE, channels=1)
     sd.wait()  # Wait until recording is finished
-    return recorded_window
+    return recorded_window.flatten()
 
 
 def create_mfcc(record, sample_rate):
@@ -42,7 +42,7 @@ def plot_and_save_mfcc(mfcc_data, file_name, sample_rate):
 
 def start_listening_and_creating_mfcc():
     image_count = 0
-    while True:
+    while image_count<2:
         my_recording = record_window()
         mfcc_data = create_mfcc(my_recording, conf.SAMPLE_RATE)
         plot_and_save_mfcc(mfcc_data, conf.DEFAULT_MFCC_IMAGE_NAME.format(image_count), conf.SAMPLE_RATE)
