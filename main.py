@@ -52,6 +52,7 @@ def debug_save_mfcc(mfcc_data, record, sample_rate, file_name):
     print('finish save for ', file_name)
     return 0
 
+# TODO: Solve high memory issue since thread exiting is not releasing memory
 def start_listening_and_creating_mfcc():
     image_count = 0
     while True:
